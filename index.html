@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AETERNA - The Soul of Venice. Distilled. Ultra-luxury water from the Venetian Aquifer." />
+    <meta name="theme-color" content="#020405" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <title>AETERNA | The Soul of Venice. Distilled.</title>
+    
+    <style>
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      /* Hide scrollbar but keep functionality */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: #020405;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: #D4AF37;
+        opacity: 0.3;
+        border-radius: 2px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: #D4AF37;
+        opacity: 0.6;
+      }
+      
+      /* Selection color */
+      ::selection {
+        background: rgba(212, 175, 55, 0.3);
+        color: #F5F5F5;
+      }
+      
+      /* Loading animation */
+      body {
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 0.2s forwards;
+      }
+      
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
