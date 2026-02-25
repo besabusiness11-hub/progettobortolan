@@ -524,9 +524,9 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="mb-8"
+          className="mb-6 md:mb-8"
         >
-          <span className="text-[10px] font-mono tracking-[0.5em] text-[#D4AF37]/70 uppercase">
+          <span className="text-[9px] md:text-[10px] font-mono tracking-[0.5em] text-[#D4AF37]/70 uppercase">
             {t.heroPreTitle}
           </span>
         </motion.div>
@@ -536,7 +536,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30, letterSpacing: '0.3em' }}
           animate={{ opacity: 1, y: 0, letterSpacing: '0.5em' }}
           transition={{ duration: 1.5, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-[#F5F5F5] tracking-[0.5em] mb-8"
+          className="font-serif text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-light text-[#F5F5F5] tracking-[0.5em] mb-6 md:mb-8"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           {t.heroTitle}
@@ -547,7 +547,7 @@ const HeroSection = () => {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.2, delay: 1.5 }}
-          className="w-24 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto mb-8"
+          className="w-16 md:w-24 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto mb-6 md:mb-8"
         />
         
         {/* Subtitle */}
@@ -555,7 +555,7 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.8 }}
-          className="font-serif text-lg md:text-xl text-neutral-400 font-light italic tracking-wide"
+          className="font-serif text-sm md:text-lg lg:text-xl text-neutral-400 font-light italic tracking-wide"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           {t.heroSubtitle}
@@ -596,14 +596,14 @@ const ArtifactSection = () => {
         <div className="w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_#D4AF37_0%,_transparent_70%)] opacity-10 blur-3xl" />
       </motion.div>
       
-      <div className="container mx-auto px-4 md:px-8">
+      <div className="container mx-auto px-3 md:px-8">
         {/* Section Header */}
-        <AnimatedSection className="text-center mb-24">
-          <span className="text-[10px] font-mono tracking-[0.4em] text-[#D4AF37]/60 uppercase block mb-4">
+        <AnimatedSection className="text-center mb-16 md:mb-24">
+          <span className="text-[9px] md:text-[10px] font-mono tracking-[0.4em] text-[#D4AF37]/60 uppercase block mb-3 md:mb-4">
             {t.artifactLabel}
           </span>
           <h2 
-            className="font-serif text-4xl md:text-5xl text-[#F5F5F5] font-light tracking-wider"
+            className="font-serif text-2xl md:text-4xl lg:text-5xl text-[#F5F5F5] font-light tracking-wider"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             {t.artifactTitle}
@@ -611,8 +611,8 @@ const ArtifactSection = () => {
         </AnimatedSection>
         
         {/* Product Showcase */}
-        <div className="relative flex items-center justify-center min-h-[600px]">
-          {/* Left Data Points */}
+        <div className="relative flex items-center justify-center min-h-[400px] md:min-h-[600px]">
+          {/* Left Data Points - Hidden on mobile, visible on md+ */}
           <div className="hidden md:flex flex-col gap-16 absolute left-0 md:left-8 lg:left-16 xl:left-32">
             <div className="relative">
               <DataPoint 
@@ -649,31 +649,31 @@ const ArtifactSection = () => {
             style={{ y: bottleY }}
           >
             {/* Holy relic glow effect */}
-            <div className="absolute inset-0 -m-16">
+            <div className="absolute inset-0 -m-8 md:-m-16">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#D4AF37_0%,_transparent_60%)] opacity-20" />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#F5F5F5_0%,_transparent_40%)] opacity-5" />
             </div>
             
             {/* Bottle Placeholder */}
-            <GlassPanel className="w-64 h-[500px] md:w-80 md:h-[600px] rounded-t-full flex items-center justify-center">
+            <GlassPanel className="w-48 h-[350px] sm:w-56 sm:h-[450px] md:w-80 md:h-[600px] rounded-t-full flex items-center justify-center">
               <div className="text-center px-4">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-[#D4AF37]/30 flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-b from-[#D4AF37]/20 to-transparent" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 rounded-full border border-[#D4AF37]/30 flex items-center justify-center">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-b from-[#D4AF37]/20 to-transparent" />
                 </div>
-                <span className="text-[10px] font-mono tracking-[0.3em] text-neutral-500 uppercase">
+                <span className="text-[8px] md:text-[10px] font-mono tracking-[0.3em] text-neutral-500 uppercase">
                   {t.bottlePlaceholder}
                 </span>
-                <p className="text-[9px] text-neutral-600 mt-2 font-mono">
+                <p className="text-[7px] md:text-[9px] text-neutral-600 mt-1 md:mt-2 font-mono">
                   {t.bottleCapacity}
                 </p>
               </div>
             </GlassPanel>
             
             {/* Base reflection */}
-            <div className="w-full h-32 bg-gradient-to-b from-[#D4AF37]/5 to-transparent rounded-b-full blur-sm" />
+            <div className="w-full h-16 md:h-32 bg-gradient-to-b from-[#D4AF37]/5 to-transparent rounded-b-full blur-sm" />
           </motion.div>
           
-          {/* Right Data Points */}
+          {/* Right Data Points - Hidden on mobile */}
           <div className="hidden md:flex flex-col gap-16 absolute right-0 md:right-8 lg:right-16 xl:right-32">
             <div className="relative">
               <DataPoint 
@@ -705,12 +705,14 @@ const ArtifactSection = () => {
           </div>
         </div>
         
-        {/* Mobile Data Points */}
-        <div className="grid grid-cols-2 gap-8 mt-16 md:hidden">
+        {/* Mobile Data Points - Visible only on mobile/sm */}
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 mt-10 md:hidden">
           <DataPoint label={t.productNitratesLabel} value={t.productNitratesValue} align="left" delay={0.2} />
           <DataPoint label={t.productOriginLabel} value={t.productOriginValue} align="right" delay={0.3} />
           <DataPoint label={t.productPHLabel} value={t.productPHValue} align="left" delay={0.4} />
           <DataPoint label={t.productDepthLabel} value={t.productDepthValue} align="right" delay={0.5} />
+          <DataPoint label={t.productTDSLabel} value={t.productTDSValue} align="left" delay={0.6} />
+          <DataPoint label={t.productVesselLabel} value={t.productVesselValue} align="right" delay={0.7} />
         </div>
       </div>
     </section>
@@ -744,33 +746,33 @@ const HeritageSection = () => {
       
       {/* Floating Ferro di Prua */}
       <motion.div 
-        className="absolute left-8 md:left-16 lg:left-32 top-1/2 -translate-y-1/2 opacity-10"
+        className="absolute left-2 md:left-16 lg:left-32 top-1/2 -translate-y-1/2 opacity-5 md:opacity-10"
         style={{ y: ferroY }}
       >
-        <FerroDiPrua className="w-12 md:w-16 h-auto" />
+        <FerroDiPrua className="w-8 md:w-12 lg:w-16 h-auto" />
       </motion.div>
       
       <motion.div 
-        className="absolute right-8 md:right-16 lg:right-32 top-1/2 -translate-y-1/2 opacity-10 scale-x-[-1]"
+        className="absolute right-2 md:right-16 lg:right-32 top-1/2 -translate-y-1/2 opacity-5 md:opacity-10 scale-x-[-1]"
         style={{ y: ferroY }}
       >
-        <FerroDiPrua className="w-12 md:w-16 h-auto" />
+        <FerroDiPrua className="w-8 md:w-12 lg:w-16 h-auto" />
       </motion.div>
       
       <div className="container mx-auto px-4 md:px-8">
         <div className="max-w-4xl mx-auto text-center">
           {/* Section Label */}
           <AnimatedSection>
-            <span className="text-[10px] font-mono tracking-[0.4em] text-[#D4AF37]/60 uppercase block mb-12">
+            <span className="text-[9px] md:text-[10px] font-mono tracking-[0.4em] text-[#D4AF37]/60 uppercase block mb-8 md:mb-12">
               {t.heritageLabel}
             </span>
           </AnimatedSection>
           
           {/* Main Quote */}
           <AnimatedSection delay={0.2}>
-            <blockquote className="mb-12">
+            <blockquote className="mb-8 md:mb-12">
               <p 
-                className="font-serif text-2xl md:text-4xl lg:text-5xl text-[#F5F5F5] font-light leading-relaxed tracking-wide"
+                className="font-serif text-lg sm:text-2xl md:text-4xl lg:text-5xl text-[#F5F5F5] font-light leading-relaxed tracking-wide"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 <span className="text-[#D4AF37]">"</span>
@@ -782,23 +784,23 @@ const HeritageSection = () => {
           
           {/* Decorative divider */}
           <AnimatedSection delay={0.4}>
-            <div className="flex items-center justify-center gap-4 mb-12">
-              <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-[#D4AF37]/40" />
+            <div className="flex items-center justify-center gap-3 md:gap-4 mb-8 md:mb-12">
+              <div className="w-8 md:w-16 h-[1px] bg-gradient-to-r from-transparent to-[#D4AF37]/40" />
               <div className="w-2 h-2 rotate-45 border border-[#D4AF37]/40" />
-              <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-[#D4AF37]/40" />
+              <div className="w-8 md:w-16 h-[1px] bg-gradient-to-l from-transparent to-[#D4AF37]/40" />
             </div>
           </AnimatedSection>
           
           {/* Supporting copy */}
           <AnimatedSection delay={0.5}>
-            <p className="text-sm md:text-base text-neutral-500 font-light leading-relaxed max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm md:text-base text-neutral-500 font-light leading-relaxed max-w-2xl mx-auto px-2">
               {t.heritageBody}
             </p>
           </AnimatedSection>
           
           {/* Abstract water line pattern */}
-          <AnimatedSection delay={0.6} className="mt-16">
-            <svg className="w-full max-w-md mx-auto h-12 opacity-30" viewBox="0 0 400 50">
+          <AnimatedSection delay={0.6} className="mt-12 md:mt-16">
+            <svg className="w-full max-w-md mx-auto h-8 md:h-12 opacity-30" viewBox="0 0 400 50">
               <path
                 d="M 0 25 Q 50 10 100 25 T 200 25 T 300 25 T 400 25"
                 fill="none"
@@ -826,22 +828,22 @@ const AcquisitionSection = () => {
   const [isHovered, setIsHovered] = useState(false);
   
   return (
-    <section className="relative w-full py-32 overflow-hidden">
+    <section className="relative w-full py-24 md:py-32 overflow-hidden px-4">
       {/* Top border gradient */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37]/20 to-transparent" />
       
-      <div className="container mx-auto px-4 md:px-8">
+      <div className="container mx-auto">
         <div className="max-w-3xl mx-auto text-center">
           {/* Section Label */}
           <AnimatedSection>
-            <span className="text-[10px] font-mono tracking-[0.4em] text-[#D4AF37]/60 uppercase block mb-8">
+            <span className="text-[9px] md:text-[10px] font-mono tracking-[0.4em] text-[#D4AF37]/60 uppercase block mb-6 md:mb-8">
               {t.acquisitionLabel}
             </span>
           </AnimatedSection>
           
           {/* Price Indication */}
           <AnimatedSection delay={0.1}>
-            <p className="font-mono text-xs text-neutral-600 tracking-wider mb-8">
+            <p className="font-mono text-[8px] md:text-xs text-neutral-600 tracking-wider mb-6 md:mb-8">
               {t.acquisitionPrice}
             </p>
           </AnimatedSection>
@@ -849,7 +851,7 @@ const AcquisitionSection = () => {
           {/* CTA Button */}
           <AnimatedSection delay={0.2}>
             <motion.button
-              className="group relative px-12 py-5 overflow-hidden"
+              className="group relative px-8 sm:px-12 py-4 md:py-5 overflow-hidden"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               whileHover={{ scale: 1.02 }}
@@ -870,7 +872,7 @@ const AcquisitionSection = () => {
               {/* Text */}
               <span 
                 className={`
-                  relative z-10 font-mono text-xs tracking-[0.3em] uppercase
+                  relative z-10 font-mono text-[9px] md:text-xs tracking-[0.3em] uppercase
                   transition-colors duration-500
                   ${isHovered ? 'text-[#020405]' : 'text-[#D4AF37]'}
                 `}
@@ -881,11 +883,11 @@ const AcquisitionSection = () => {
           </AnimatedSection>
           
           {/* Contact info */}
-          <AnimatedSection delay={0.3} className="mt-16">
-            <p className="text-[10px] font-mono tracking-[0.2em] text-neutral-600 mb-2">
+          <AnimatedSection delay={0.3} className="mt-12 md:mt-16">
+            <p className="text-[8px] md:text-[10px] font-mono tracking-[0.2em] text-neutral-600 mb-2">
               {t.contactLabel}
             </p>
-            <p className="text-xs font-mono text-neutral-500 tracking-wider">
+            <p className="text-[8px] md:text-xs font-mono text-neutral-500 tracking-wider">
               {t.contactEmail}
             </p>
           </AnimatedSection>
@@ -893,12 +895,12 @@ const AcquisitionSection = () => {
       </div>
       
       {/* Footer */}
-      <div className="mt-32 pt-8 border-t border-white/[0.03]">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="mt-20 md:mt-32 pt-6 md:pt-8 border-t border-white/[0.03]">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 text-center md:text-left">
             {/* Logo */}
             <motion.span 
-              className="font-serif text-lg tracking-[0.3em] text-neutral-600"
+              className="font-serif text-sm md:text-lg tracking-[0.3em] text-neutral-600"
               style={{ fontFamily: "'Playfair Display', serif" }}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -909,7 +911,7 @@ const AcquisitionSection = () => {
             
             {/* Establishment */}
             <motion.span 
-              className="text-[10px] font-mono tracking-[0.3em] text-neutral-700 uppercase"
+              className="text-[8px] md:text-[10px] font-mono tracking-[0.3em] text-neutral-700 uppercase"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.1 }}
@@ -919,7 +921,7 @@ const AcquisitionSection = () => {
             
             {/* Legal */}
             <motion.span 
-              className="text-[9px] font-mono text-neutral-700"
+              className="text-[7px] md:text-[9px] font-mono text-neutral-700"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.2 }}
@@ -1193,10 +1195,10 @@ const OriginsPortal = ({ onClose }) => {
               return (
                 <div 
                   key={index}
-                  className="min-h-[60vh] flex items-center justify-center px-4 md:px-8"
+                  className="min-h-[50vh] sm:min-h-[60vh] flex items-center justify-center px-3 sm:px-4 md:px-8"
                 >
                   <motion.div
-                    className="max-w-2xl w-full ml-auto mr-4 md:mr-16 lg:mr-32"
+                    className="max-w-2xl w-full ml-auto mr-2 sm:mr-4 md:mr-16 lg:mr-32"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ 
                       opacity: isVisible ? 1 : 0, 
@@ -1205,12 +1207,12 @@ const OriginsPortal = ({ onClose }) => {
                     transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                   >
                     <div className={`
-                      relative pl-8 border-l-2 transition-all duration-500
+                      relative pl-4 sm:pl-8 border-l-2 transition-all duration-500
                       ${isActive ? 'border-white' : 'border-white/20'}
                     `}>
                       {/* Glowing dot */}
                       <div className={`
-                        absolute left-0 top-0 w-4 h-4 -translate-x-1/2 rounded-full transition-all duration-500
+                        absolute left-0 top-0 w-3 sm:w-4 h-3 sm:h-4 -translate-x-1/2 rounded-full transition-all duration-500
                         ${isActive 
                           ? 'bg-white shadow-[0_0_30px_rgba(255,255,255,0.8)]' 
                           : 'bg-white/40 shadow-[0_0_10px_rgba(255,255,255,0.3)]'
@@ -1219,25 +1221,25 @@ const OriginsPortal = ({ onClose }) => {
                       
                       {/* Altitude marker */}
                       <span className={`
-                        text-3xl md:text-4xl font-mono font-light mb-2 block transition-colors duration-500
+                        text-lg sm:text-2xl md:text-4xl font-mono font-light mb-1 sm:mb-2 block transition-colors duration-500
                         ${isActive ? 'text-white' : 'text-white/50'}
                       `}>
                         {milestone.altitude}
                       </span>
                       
                       {/* Title */}
-                      <span className={`text-[11px] font-mono tracking-[0.3em] uppercase block mb-4 transition-colors duration-500 ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/60'}`}>
+                      <span className={`text-[9px] sm:text-[11px] font-mono tracking-[0.3em] uppercase block mb-2 sm:mb-4 transition-colors duration-500 ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/60'}`}>
                         {milestone.title}
                       </span>
                       
                       {/* Main text */}
-                      <p className="text-lg md:text-xl text-white/90 font-light leading-relaxed mb-4 drop-shadow-md">
+                      <p className="text-sm sm:text-lg md:text-xl text-white/90 font-light leading-relaxed mb-2 sm:mb-4 drop-shadow-md">
                         {milestone.text}
                       </p>
                       
                       {/* Detail text - only show when active */}
                       <motion.p 
-                        className="text-sm text-white/60 font-light leading-relaxed"
+                        className="text-xs sm:text-sm text-white/60 font-light leading-relaxed"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ 
                           opacity: isActive ? 1 : 0,
@@ -1277,36 +1279,36 @@ const OriginsPortal = ({ onClose }) => {
       {/* Close Button */}
       <motion.button
         onClick={onClose}
-        className="fixed top-6 right-4 md:right-8 z-[60] flex items-center gap-2 group"
+        className="fixed top-3 sm:top-6 right-3 sm:right-4 md:right-8 z-[60] flex items-center gap-2 group"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        <span className="text-[10px] font-mono tracking-[0.2em] text-white/50 uppercase group-hover:text-[#D4AF37] transition-colors duration-300">
+        <span className="text-[8px] sm:text-[10px] font-mono tracking-[0.2em] text-white/50 uppercase group-hover:text-[#D4AF37] transition-colors duration-300 hidden sm:inline">
           {t.originsBack}
         </span>
-        <X className="w-4 h-4 text-white/50 group-hover:text-[#D4AF37] transition-colors duration-300" />
+        <X className="w-4 h-4 sm:w-5 sm:h-5 text-white/50 group-hover:text-[#D4AF37] transition-colors duration-300" />
       </motion.button>
 
-      {/* Altitude Counter - Fixed Left */}
+      {/* Altitude Counter - Right side on mobile, left on desktop */}
       <motion.div 
-        className="fixed left-4 md:left-8 top-1/2 -translate-y-1/2 z-[60]"
+        className="fixed left-3 sm:left-4 md:left-8 top-1/2 -translate-y-1/2 z-[60] md:right-auto"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.6 }}
       >
         <div className="flex flex-col items-start">
-          <span className="text-[9px] font-mono tracking-[0.3em] text-white/50 uppercase mb-2">
+          <span className="text-[7px] sm:text-[9px] font-mono tracking-[0.2em] sm:tracking-[0.3em] text-white/50 uppercase mb-1 sm:mb-2">
             {t.originsAltitudeLabel}
           </span>
-          <span className="text-4xl md:text-6xl font-mono text-white font-light tabular-nums drop-shadow-lg">
+          <span className="text-2xl sm:text-4xl md:text-6xl font-mono text-white font-light tabular-nums drop-shadow-lg">
             {currentAltitude}
-            <span className="text-lg md:text-2xl text-white/50 ml-1">m</span>
+            <span className="text-xs sm:text-lg md:text-2xl text-white/50 ml-0.5 sm:ml-1">m</span>
           </span>
         </div>
         
         {/* Vertical Progress Line - fills from top as we descend */}
-        <div className="w-[2px] h-32 bg-white/10 mt-4 relative overflow-hidden rounded-full">
+        <div className="w-[1px] sm:w-[2px] h-20 sm:h-32 bg-white/10 mt-2 sm:mt-4 relative overflow-hidden rounded-full">
           <motion.div 
             className="absolute top-0 left-0 w-full bg-gradient-to-b from-white/50 to-[#D4AF37] rounded-full"
             style={{ height: `${scrollProgress * 100}%` }}
@@ -1314,11 +1316,11 @@ const OriginsPortal = ({ onClose }) => {
         </div>
         
         {/* Altitude markers - reversed order (300 at top, 0 at bottom) */}
-        <div className="mt-2 space-y-1">
+        <div className="mt-1 sm:mt-2 space-y-0.5 sm:space-y-1">
           {[300, 200, 100, 0].map((alt) => (
             <div 
               key={alt} 
-              className={`text-[8px] font-mono transition-colors duration-300 ${currentAltitude <= alt ? 'text-[#D4AF37]/80' : 'text-white/30'}`}
+              className={`text-[6px] sm:text-[8px] font-mono transition-colors duration-300 ${currentAltitude <= alt ? 'text-[#D4AF37]/80' : 'text-white/30'}`}
             >
               {alt}m
             </div>
@@ -1488,35 +1490,35 @@ const PurityPortal = ({ onClose }) => {
 
             {/* Header */}
             <motion.div 
-              className="text-center mb-12 relative z-10"
+              className="text-center mb-8 md:mb-12 relative z-10"
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
             >
-              <span className="text-[10px] font-mono tracking-[0.5em] text-[#F5F5F5]/50 uppercase block mb-4">
+              <span className="text-[8px] md:text-[10px] font-mono tracking-[0.5em] text-[#F5F5F5]/50 uppercase block mb-3 md:mb-4">
                 {t.puritySubtitle}
               </span>
               <h1
-                className="font-serif text-4xl md:text-6xl lg:text-7xl font-light text-[#F5F5F5] tracking-[0.2em] mb-6"
+                className="font-serif text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-light text-[#F5F5F5] tracking-[0.2em] mb-4 md:mb-6"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {t.purityTitle}
               </h1>
-              <p className="text-sm md:text-base text-neutral-500 font-light max-w-lg mx-auto">
+              <p className="text-xs sm:text-sm md:text-base text-neutral-500 font-light max-w-lg mx-auto px-2">
                 {t.purityDescription}
               </p>
             </motion.div>
 
             {/* Central Molecule Visualization */}
             <motion.div 
-              className="relative mb-12"
+              className="relative mb-8 md:mb-12"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.5, duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {/* Outer Ring */}
               <motion.div
-                className="w-40 h-40 md:w-56 md:h-56 rounded-full border border-[#F5F5F5]/10 flex items-center justify-center"
+                className="w-28 h-28 sm:w-40 sm:h-40 md:w-56 md:h-56 rounded-full border border-[#F5F5F5]/10 flex items-center justify-center"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
               >
@@ -1524,11 +1526,11 @@ const PurityPortal = ({ onClose }) => {
                 {[0, 120, 240].map((angle, i) => (
                   <motion.div
                     key={i}
-                    className="absolute w-2 h-2 rounded-full bg-[#F5F5F5]"
+                    className="absolute w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#F5F5F5]"
                     style={{
                       left: '50%',
                       top: '50%',
-                      transform: `rotate(${angle}deg) translateX(${window.innerWidth < 768 ? 70 : 96}px) translateY(-50%)`,
+                      transform: `rotate(${angle}deg) translateX(${window.innerWidth < 640 ? 48 : window.innerWidth < 768 ? 70 : 96}px) translateY(-50%)`,
                     }}
                     animate={{
                       boxShadow: [
@@ -1545,7 +1547,7 @@ const PurityPortal = ({ onClose }) => {
               {/* Inner Core */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <motion.div
-                  className="w-20 h-20 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#F5F5F5]/10 to-transparent border border-[#F5F5F5]/20 flex items-center justify-center"
+                  className="w-12 sm:w-20 sm:h-20 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#F5F5F5]/10 to-transparent border border-[#F5F5F5]/20 flex items-center justify-center"
                   animate={{
                     boxShadow: [
                       '0 0 30px rgba(245,245,245,0.1)',
@@ -1555,7 +1557,7 @@ const PurityPortal = ({ onClose }) => {
                   }}
                   transition={{ duration: 3, repeat: Infinity }}
                 >
-                  <span className="text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/60 uppercase">
+                  <span className="text-[6px] sm:text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/60 uppercase">
                     {t.purityMoleculeLabel}
                   </span>
                 </motion.div>
@@ -1620,17 +1622,17 @@ const PurityPortal = ({ onClose }) => {
 
             {/* Scroll indicator */}
             <motion.div 
-              className="mt-16"
+              className="mt-8 md:mt-16"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.5 }}
               style={{ opacity: Math.max(0, 1 - scrollProgress * 5) }}
             >
-              <span className="text-[9px] font-mono tracking-[0.3em] text-neutral-600 uppercase block mb-4">
+              <span className="text-[8px] md:text-[9px] font-mono tracking-[0.3em] text-neutral-600 uppercase block mb-3">
                 Scroll for Full Report
               </span>
               <motion.div
-                className="w-[1px] h-12 bg-gradient-to-b from-[#F5F5F5]/30 to-transparent mx-auto"
+                className="w-[1px] h-8 md:h-12 bg-gradient-to-b from-[#F5F5F5]/30 to-transparent mx-auto"
                 animate={{ y: [0, 8, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
@@ -1638,49 +1640,49 @@ const PurityPortal = ({ onClose }) => {
           </div>
 
           {/* ====== SECTION 2: The Report ====== */}
-          <div className="min-h-screen px-4 py-20 relative">
+          <div className="min-h-screen px-3 sm:px-4 md:px-4 py-16 md:py-20 relative">
             {/* Section Header */}
             <motion.div 
-              className="text-center mb-16"
+              className="text-center mb-12 md:mb-16"
               initial={{ opacity: 0 }}
               animate={{ opacity: scrollProgress > 0.15 ? 1 : 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="w-16 h-[1px] bg-[#F5F5F5]/20 mx-auto mb-8" />
-              <span className="text-[10px] font-mono tracking-[0.5em] text-[#F5F5F5]/40 uppercase block mb-4">
+              <div className="w-12 md:w-16 h-[1px] bg-[#F5F5F5]/20 mx-auto mb-6 md:mb-8" />
+              <span className="text-[8px] md:text-[10px] font-mono tracking-[0.5em] text-[#F5F5F5]/40 uppercase block mb-3 md:mb-4">
                 Laboratory Analysis
               </span>
               <h2
-                className="font-serif text-3xl md:text-4xl font-light text-[#F5F5F5] tracking-wider mb-4"
+                className="font-serif text-xl sm:text-3xl md:text-4xl font-light text-[#F5F5F5] tracking-wider mb-3 md:mb-4"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 The Complete Report
               </h2>
-              <p className="text-sm text-neutral-600 font-light max-w-md mx-auto">
+              <p className="text-[8px] sm:text-sm md:text-sm text-neutral-600 font-light max-w-md mx-auto px-2">
                 Certified analysis from independent European laboratories
               </p>
             </motion.div>
 
             {/* Parameters Table */}
             <motion.div 
-              className="max-w-2xl mx-auto"
+              className="max-w-2xl mx-auto px-2"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: scrollProgress > 0.2 ? 1 : 0, y: scrollProgress > 0.2 ? 0 : 40 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="border border-[#F5F5F5]/10 bg-[#F5F5F5]/[0.01]">
+              <div className="border border-[#F5F5F5]/10 bg-[#F5F5F5]/[0.01] overflow-x-auto">
                 {/* Table Header */}
-                <div className="grid grid-cols-3 gap-4 p-4 border-b border-[#F5F5F5]/10 bg-[#F5F5F5]/[0.02]">
-                  <span className="text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/40 uppercase">Parameter</span>
-                  <span className="text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/40 uppercase text-center">Value</span>
-                  <span className="text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/40 uppercase text-right">Status</span>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 border-b border-[#F5F5F5]/10 bg-[#F5F5F5]/[0.02]">
+                  <span className="text-[7px] sm:text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/40 uppercase">Parameter</span>
+                  <span className="text-[7px] sm:text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/40 uppercase text-center">Value</span>
+                  <span className="text-[7px] sm:text-[9px] font-mono tracking-[0.2em] text-[#F5F5F5]/40 uppercase text-right">Status</span>
                 </div>
                 
                 {/* Table Rows */}
                 {chemicalParameters.map((param, index) => (
                   <motion.div
                     key={param.label}
-                    className="grid grid-cols-3 gap-4 p-4 border-b border-[#F5F5F5]/5 hover:bg-[#F5F5F5]/[0.02] transition-colors duration-300"
+                    className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 border-b border-[#F5F5F5]/5 hover:bg-[#F5F5F5]/[0.02] transition-colors duration-300"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ 
                       opacity: scrollProgress > 0.25 + index * 0.03 ? 1 : 0, 
@@ -1688,13 +1690,13 @@ const PurityPortal = ({ onClose }) => {
                     }}
                     transition={{ duration: 0.5 }}
                   >
-                    <span className="text-sm font-mono text-neutral-400">{param.label}</span>
-                    <span className="text-sm font-mono text-[#F5F5F5] text-center">
-                      {param.value} <span className="text-neutral-600">{param.unit}</span>
+                    <span className="text-[8px] sm:text-sm font-mono text-neutral-400">{param.label}</span>
+                    <span className="text-[8px] sm:text-sm font-mono text-[#F5F5F5] text-center">
+                      {param.value} <span className="text-neutral-600 text-[7px] sm:text-[8px]">{param.unit}</span>
                     </span>
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="text-[8px] font-mono text-[#D4AF37]/80 uppercase">Optimal</span>
-                      <div className="w-2 h-2 rounded-full bg-[#D4AF37] shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
+                    <div className="flex items-center justify-end gap-1 sm:gap-2">
+                      <span className="text-[6px] sm:text-[8px] font-mono text-[#D4AF37]/80 uppercase">Optimal</span>
+                      <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-[#D4AF37] shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
                     </div>
                   </motion.div>
                 ))}
@@ -1752,31 +1754,31 @@ const PurityPortal = ({ onClose }) => {
       {/* Close Button */}
       <motion.button
         onClick={onClose}
-        className="fixed top-6 right-4 md:right-8 z-[60] flex items-center gap-2 group"
+        className="fixed top-3 sm:top-6 right-3 sm:right-4 md:right-8 z-[60] flex items-center gap-2 group"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
-        <span className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase group-hover:text-[#F5F5F5] transition-colors duration-300">
+        <span className="text-[8px] sm:text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase group-hover:text-[#F5F5F5] transition-colors duration-300 hidden sm:inline">
           {t.purityBack}
         </span>
-        <X className="w-4 h-4 text-neutral-500 group-hover:text-[#F5F5F5] transition-colors duration-300" />
+        <X className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-500 group-hover:text-[#F5F5F5] transition-colors duration-300" />
       </motion.button>
 
       {/* Progress Indicator - Right side */}
       <motion.div 
-        className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-[60]"
+        className="fixed right-3 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 z-[60]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        <div className="flex flex-col items-center gap-3">
-          <div className={`w-2 h-2 rounded-full transition-all duration-300 ${scrollProgress < 0.3 ? 'bg-[#F5F5F5] scale-125' : 'bg-[#F5F5F5]/30'}`} />
-          <div className="w-[1px] h-8 bg-[#F5F5F5]/10" />
-          <div className={`w-2 h-2 rounded-full transition-all duration-300 ${scrollProgress >= 0.3 ? 'bg-[#F5F5F5] scale-125' : 'bg-[#F5F5F5]/30'}`} />
+        <div className="flex flex-col items-center gap-2 sm:gap-3">
+          <div className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full transition-all duration-300 ${scrollProgress < 0.3 ? 'bg-[#F5F5F5] scale-125' : 'bg-[#F5F5F5]/30'}`} />
+          <div className="w-[1px] h-6 sm:h-8 bg-[#F5F5F5]/10" />
+          <div className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full transition-all duration-300 ${scrollProgress >= 0.3 ? 'bg-[#F5F5F5] scale-125' : 'bg-[#F5F5F5]/30'}`} />
         </div>
-        <div className="mt-4 text-center">
-          <span className="text-[8px] font-mono text-neutral-600 uppercase writing-mode-vertical" style={{ writingMode: 'vertical-rl' }}>
+        <div className="mt-2 sm:mt-4 text-center">
+          <span className="text-[6px] sm:text-[8px] font-mono text-neutral-600 uppercase" style={{ writingMode: 'vertical-rl' }}>
             {scrollProgress < 0.3 ? 'Analysis' : 'Report'}
           </span>
         </div>
@@ -1816,6 +1818,7 @@ const HomeContent = () => {
 function App() {
   const [lang, setLang] = useState('en');
   const [activeSection, setActiveSection] = useState('home'); // 'home', 'origins', 'purity'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = content[lang];
   
   // Smooth scroll behavior
@@ -1836,6 +1839,7 @@ function App() {
   }, [activeSection]);
 
   const handleNavClick = (section) => {
+    setMobileMenuOpen(false);
     if (section === 'acquire') {
       // Scroll to acquisition section
       const acquisitionSection = document.querySelector('section:last-of-type');
@@ -1864,10 +1868,10 @@ function App() {
         
         {/* Navigation (Minimal) - Only show on home */}
         {activeSection === 'home' && (
-          <nav className="fixed top-0 left-0 right-0 z-40 px-4 md:px-8 py-6">
+          <nav className="fixed top-0 left-0 right-0 z-40 px-4 md:px-8 py-4 md:py-6">
             <div className="flex items-center justify-between">
               <motion.span 
-                className="font-serif text-sm tracking-[0.3em] text-neutral-400 cursor-pointer"
+                className="font-serif text-xs md:text-sm tracking-[0.3em] text-neutral-400 cursor-pointer"
                 style={{ fontFamily: "'Playfair Display', serif" }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -1877,32 +1881,92 @@ function App() {
                 AE
               </motion.span>
               
+              {/* Desktop Navigation */}
               <motion.div 
-                className="flex items-center gap-8 mr-24"
+                className="flex items-center gap-6 md:gap-8 mr-0 md:mr-24"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.3 }}
               >
                 <button 
                   onClick={() => handleNavClick('origins')}
-                  className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase hidden md:inline cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
+                  className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase hidden md:inline cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
                 >
                   {t.navOrigins}
                 </button>
                 <button 
                   onClick={() => handleNavClick('purity')}
-                  className="text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase hidden md:inline cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
+                  className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase hidden md:inline cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
                 >
                   {t.navPurity}
                 </button>
                 <button 
                   onClick={() => handleNavClick('acquire')}
-                  className="text-[10px] font-mono tracking-[0.2em] text-[#D4AF37]/70 uppercase cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
+                  className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] text-[#D4AF37]/70 uppercase cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
                 >
                   {t.navAcquire}
                 </button>
               </motion.div>
+
+              {/* Mobile Menu Button */}
+              <motion.button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden flex flex-col gap-1.5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <motion.div 
+                  className="w-5 h-0.5 bg-neutral-400"
+                  animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 10 : 0 }}
+                >
+                </motion.div>
+                <motion.div 
+                  className="w-5 h-0.5 bg-neutral-400"
+                  animate={{ opacity: mobileMenuOpen ? 0 : 1 }}
+                >
+                </motion.div>
+                <motion.div 
+                  className="w-5 h-0.5 bg-neutral-400"
+                  animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -10 : 0 }}
+                >
+                </motion.div>
+              </motion.button>
             </div>
+
+            {/* Mobile Menu */}
+            <AnimatePresence>
+              {mobileMenuOpen && (
+                <motion.div
+                  className="absolute top-full left-0 right-0 bg-[#020405]/95 backdrop-blur-md border-b border-[#D4AF37]/10 md:hidden"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="px-4 py-4 space-y-3 flex flex-col">
+                    <button 
+                      onClick={() => handleNavClick('origins')}
+                      className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase hover:text-[#D4AF37] transition-colors duration-300 text-left py-2 border-b border-white/5 pb-3"
+                    >
+                      {t.navOrigins}
+                    </button>
+                    <button 
+                      onClick={() => handleNavClick('purity')}
+                      className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase hover:text-[#D4AF37] transition-colors duration-300 text-left py-2 border-b border-white/5 pb-3"
+                    >
+                      {t.navPurity}
+                    </button>
+                    <button 
+                      onClick={() => handleNavClick('acquire')}
+                      className="text-[10px] font-mono tracking-[0.2em] text-[#D4AF37] uppercase hover:text-[#D4AF37]/80 transition-colors duration-300 text-left py-2"
+                    >
+                      {t.navAcquire}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </nav>
         )}
         
