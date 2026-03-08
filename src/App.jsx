@@ -1,6 +1,560 @@
 import { useRef, useEffect, useState, createContext, useContext } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { ChevronDown, X } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import DropdownMenu from './DropdownMenu';
+
+// ============================================
+// CLOUD GENERATOR EFFECT COMPONENT
+// ============================================
+const CloudGeneratorEffect = ({ scrollProgress = 0 }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isSliderDragging, setIsSliderDragging] = useState(false);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
+  const [weatherValue, setWeatherValue] = useState(0);
+  const [lightningFlash, setLightningFlash] = useState(false);
+  const [lightningGlowStyle, setLightningGlowStyle] = useState({ x: 0, y: 0 });
+  const cloudRef = useRef(null);
+  const lightningGlowRef = useRef(null);
+  const lightningIntervalRef = useRef(null);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+
+  // Sincronizza weatherValue con scrollProgress quando non c'è drag dello slider
+  useEffect(() => {
+    if (!isSliderDragging) {
+      const autoWeatherValue = Math.round(Math.min(scrollProgress, 0.85) / 0.85 * 100);
+      setWeatherValue(autoWeatherValue);
+    }
+  }, [scrollProgress, isSliderDragging]);
+
+  // CSS Styles for cloud generator
+  const cloudGeneratorStyles = `
+    .cg-sky-background {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background: transparent !important;
+      overflow: visible;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      border-radius: 0;
+      transition: filter 0.3s ease;
+    }
+
+    .cg-svg-container {
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .cg-cloud-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      filter: url(#cgfilter);
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .cg-cloud {
+      width: 300px;
+      height: 140px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: grab;
+      will-change: transform;
+      touch-action: none;
+      border: none !important;
+      outline: none !important;
+      resize: none;
+      box-sizing: border-box;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: none;
+    }
+
+    .cg-cloud:active {
+      cursor: grabbing;
+    }
+
+    .cg-cloud::-webkit-outer-spin-button,
+    .cg-cloud::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .cg-cloud[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    .cg-cloud::-webkit-resizer {
+      display: none;
+    }
+
+    .cg-cloud::-moz-resizer {
+      display: none;
+    }
+
+    .cg-weather-slider-container {
+      position: relative;
+      bottom: auto;
+      left: auto;
+      transform: none;
+      z-index: 1000;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+      @media (max-width: 640px) {
+        margin-top: 32px;
+      }
+    }
+
+    .cg-sun {
+      position: relative;
+      top: auto;
+      transform: none;
+      left: auto;
+      width: 16px;
+      height: 16px;
+      color: white;
+      pointer-events: none;
+      mix-blend-mode: normal;
+      flex-shrink: 0;
+    }
+
+    .cg-storm {
+      position: relative;
+      top: auto;
+      transform: none;
+      right: auto;
+      width: 16px;
+      height: 16px;
+      color: white;
+      pointer-events: none;
+      mix-blend-mode: normal;
+      flex-shrink: 0;
+    }
+
+    .cg-weather-slider {
+      width: 250px;
+      padding: 2px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0),
+        rgba(0, 0, 0, 0.3)
+      );
+      border-radius: 20px;
+      outline: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      border: none;
+    }
+
+    .cg-weather-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid white;
+      cursor: pointer;
+      transition: background 0.1s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .cg-weather-slider::-webkit-slider-thumb:hover {
+      background: #f0f0f0;
+      transition: none;
+    }
+
+    .cg-weather-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid white;
+      cursor: pointer;
+      transition: background 0.1s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .cg-weather-slider::-moz-range-thumb:hover {
+      background: #f0f0f0;
+      transition: none;
+    }
+
+    @keyframes cg-lightning-glow {
+      0% { opacity: 0.8; }
+      15%, 100% { opacity: 0; }
+    }
+
+    .cg-lightning-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(closest-side, white, rgba(255, 255, 255, 0));
+      pointer-events: none;
+      opacity: 0;
+      mix-blend-mode: overlay;
+      filter: blur(50px);
+    }
+
+    .cg-lightning-glow.flash {
+      animation: cg-lightning-glow 0.8s ease-out;
+    }
+  `;
+
+  // Handle drag start
+  const handleMouseDown = (e) => {
+    const rect = cloudRef.current.getBoundingClientRect();
+    const scrollbarWidth = cloudRef.current.offsetWidth - cloudRef.current.clientWidth;
+    const resizeHandleSize = 50;
+
+    if (e.clientX > rect.right - scrollbarWidth - resizeHandleSize) return;
+    if (e.clientY > rect.bottom - resizeHandleSize) return;
+
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX - offsetX,
+      y: e.clientY - offsetY
+    };
+  };
+
+  // Handle mouse move - Cloud follows cursor
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      // Sempre aggiorna la posizione della nuvola per seguire il mouse
+      const skyBg = document.querySelector('.cg-sky-background');
+      if (skyBg) {
+        const rect = skyBg.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // Calcola la distanza dal centro
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        // Offset dal centro (max 150px in ogni direzione)
+        const offsetFromCenterX = Math.max(-150, Math.min(150, mouseX - centerX));
+        const offsetFromCenterY = Math.max(-150, Math.min(150, mouseY - centerY));
+        
+        setOffsetX(offsetFromCenterX);
+        setOffsetY(offsetFromCenterY);
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  // Linear interpolation helper
+  const lerp = (start, end, t) => start + (end - start) * t;
+
+  // Update weather effects
+  const updateWeather = (value) => {
+    const t = value / 100;
+    setWeatherValue(value);
+
+    if (value === 100) {
+      if (!lightningIntervalRef.current) {
+        scheduleLightning();
+      }
+    } else {
+      if (lightningIntervalRef.current) {
+        clearTimeout(lightningIntervalRef.current);
+        lightningIntervalRef.current = null;
+      }
+    }
+  };
+
+  // Trigger lightning flash
+  const triggerLightning = () => {
+    if (!cloudRef.current) return;
+
+    const cloudRect = cloudRef.current.getBoundingClientRect();
+    const randomX = (Math.random() - 0.5) * (cloudRect.width * 0.6);
+    const randomY = Math.random() * (cloudRect.height * 0.3);
+
+    setLightningGlowStyle({ x: randomX, y: randomY });
+    setLightningFlash(true);
+
+    setTimeout(() => {
+      setLightningFlash(false);
+    }, 800);
+  };
+
+  // Schedule lightning
+  const scheduleLightning = () => {
+    const randomDelay = 300 + Math.random() * 1200;
+
+    lightningIntervalRef.current = setTimeout(() => {
+      triggerLightning();
+      scheduleLightning();
+    }, randomDelay);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (lightningIntervalRef.current) {
+        clearTimeout(lightningIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Calculate background saturation/brightness
+  const saturation = lerp(100, 30, weatherValue / 100);
+  const brightness = lerp(100, 50, weatherValue / 100);
+
+  return (
+    <div className="w-full">
+      <style>{cloudGeneratorStyles}</style>
+
+      {/* Sky Background */}
+      <div
+        className="cg-sky-background"
+        style={{
+          filter: `saturate(${saturation}%) brightness(${brightness}%)`
+        }}
+      >
+        {/* SVG Filters */}
+        <svg className="cg-svg-container" xmlns="http://www.w3.org/2000/svg">
+          <filter
+            id="cgfilter"
+            x="-50%"
+            y="-50%"
+            width="200%"
+            height="200%"
+            style={{ colorInterpolationFilters: 'sRGB' }}
+          >
+            <feTurbulence
+              type="fractalNoise"
+              seed="462"
+              baseFrequency="0.011"
+              numOctaves="5"
+              result="noise1"
+            />
+            <feTurbulence
+              type="fractalNoise"
+              seed="462"
+              baseFrequency="0.011"
+              numOctaves="2"
+              result="noise2"
+            />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur1" />
+            <feDisplacementMap in="blur1" scale="100" in2="noise1" result="cloud1" />
+            <feFlood id="cgshadow2" floodColor="rgb(215,215,215)" floodOpacity={lerp(0, 0.4, weatherValue / 100)} />
+            <feComposite operator="in" in2="SourceGraphic" />
+            <feOffset dx="-10" dy="-3" />
+            <feMorphology radius="20" />
+            <feGaussianBlur stdDeviation="20" />
+            <feDisplacementMap scale="100" in2="noise1" result="cloud2" />
+            <feFlood id="cgshadow3" floodColor="rgb(66,105,146)" floodOpacity={lerp(0.1, 0.4, weatherValue / 100)} />
+            <feComposite operator="in" in2="SourceGraphic" />
+            <feOffset dx="-10" dy="40" />
+            <feMorphology radius="0 40" />
+            <feGaussianBlur stdDeviation="20" />
+            <feDisplacementMap scale="80" in2="noise2" result="cloud3" />
+            <feFlood id="cgshadow4" floodColor="rgb(0,0,0)" floodOpacity={lerp(0.2, 0.6, weatherValue / 100)} />
+            <feComposite operator="in" in2="SourceGraphic" />
+            <feOffset dx="20" dy="60" />
+            <feMorphology radius="0 65" />
+            <feGaussianBlur stdDeviation="30" />
+            <feDisplacementMap scale="100" in2="noise2" result="cloud4" />
+            <feFlood id="cgshadow5" floodColor="rgb(0,0,0)" floodOpacity={lerp(0.2, 0.7, weatherValue / 100)} />
+            <feComposite operator="in" in2="SourceGraphic" />
+            <feOffset dx="20" dy="70" />
+            <feMorphology radius="0 200" />
+            <feGaussianBlur stdDeviation="30" />
+            <feDisplacementMap scale="100" in2="noise2" result="cloud5" />
+            <feMerge>
+              <feMergeNode in="cloud1" id="cg-feMergeNode954" />
+              <feMergeNode in="cloud2" id="cg-feMergeNode956" />
+              <feMergeNode in="cloud3" id="cg-feMergeNode958" />
+              <feMergeNode in="cloud4" id="cg-feMergeNode960" />
+              <feMergeNode in="cloud5" id="cg-feMergeNode962" />
+            </feMerge>
+          </filter>
+        </svg>
+
+        {/* Cloud Container */}
+        <div className="cg-cloud-container">
+          <textarea
+            ref={cloudRef}
+            className="cg-cloud"
+            readOnly
+            style={{
+              transform: `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`,
+              filter: `brightness(${Math.max(45, 100 - weatherValue * 0.55)}) contrast(${100 + weatherValue * 0.3})`
+            }}
+          />
+        </div>
+
+        {/* Lightning Glow */}
+        <div
+          ref={lightningGlowRef}
+          className={`cg-lightning-glow ${lightningFlash ? 'flash' : ''}`}
+          style={{
+            transform: `translate(calc(-50% + ${lightningGlowStyle.x}px), calc(-50% + ${lightningGlowStyle.y}px))`
+          }}
+        />
+
+        {/* Weather Slider Container */}
+        <div 
+          className="cg-weather-slider-container"
+          style={{ 
+            opacity: Math.max(0, 1 - scrollProgress * 5),
+            transition: 'opacity 0.3s ease',
+            pointerEvents: scrollProgress > 0.15 ? 'none' : 'auto'
+          }}
+        >
+          <svg
+            className="cg-sun"
+            xmlns="http://www.w3.org/2000/svg"
+            x="0px"
+            y="0px"
+            width="16px"
+            height="16px"
+            viewBox="0 0 20 20"
+          >
+            <circle cx="10" cy="10" r="4" strokeWidth="0" fill="currentColor" />
+            <line
+              x1="10"
+              y1="2"
+              x2="10"
+              y2="3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+            <line
+              x1="15.657"
+              y1="4.343"
+              x2="14.596"
+              y2="5.404"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+            <line
+              x1="18"
+              y1="10"
+              x2="16.5"
+              y2="10"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+            <line
+              x1="15.657"
+              y1="15.657"
+              x2="14.596"
+              y2="14.596"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+            <line
+              x1="10"
+              y1="18"
+              x2="10"
+              y2="16.5"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+            <line
+              x1="4.343"
+              y1="15.657"
+              x2="5.404"
+              y2="14.596"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+            <line
+              x1="2"
+              y1="10"
+              x2="3.5"
+              y2="10"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+            <line
+              x1="4.343"
+              y1="4.343"
+              x2="5.404"
+              y2="5.404"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+          </svg>
+
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={weatherValue}
+            onChange={(e) => updateWeather(Number(e.target.value))}
+            onMouseDown={() => setIsSliderDragging(true)}
+            onMouseUp={() => setIsSliderDragging(false)}
+            onTouchStart={() => setIsSliderDragging(true)}
+            onTouchEnd={() => setIsSliderDragging(false)}
+            className="cg-weather-slider"
+          />
+
+          <svg
+            className="cg-storm"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            fill="currentColor"
+          >
+            <path d="M96 416a16 16 0 01-14.3-23.16l24-48a16 16 0 0128.62 14.32l-24 48A16 16 0 0196 416zM120 480a16 16 0 01-14.3-23.16l16-32a16 16 0 0128.62 14.32l-16 32A16 16 0 01120 480zM376 416a16 16 0 01-14.3-23.16l24-48a16 16 0 0128.62 14.32l-24 48A16 16 0 01376 416zM400 480a16 16 0 01-14.3-23.16l16-32a16 16 0 0128.62 14.32l-16 32A16 16 0 01400 480z" />
+            <path d="M405.84 136.9a151.25 151.25 0 00-47.6-81.9 153 153 0 00-241.81 51.86C60.5 110.16 16 156.65 16 213.33 16 272.15 63.91 320 122.8 320h66.31l-12.89 77.37A16 16 0 00192 416h32v64a16 16 0 0029 9.3l80-112a16 16 0 00-13-25.3h-27.51l8-32h103.84a91.56 91.56 0 001.51-183.1z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // ============================================
 // AETERNA - Ultra Luxury Water Landing Page
@@ -48,6 +602,28 @@ const content = {
     navOrigins: "Origins",
     navPurity: "Purity",
     navAcquire: "Acquire",
+    navStory: "Story",
+    // Story Portal
+    storyTitle: "THE AETERNA STORY",
+    storySubtitle: "A Quest for Essence",
+    storyIntro: "In a world drowning in complexity, we searched for simplicity.",
+    storyChapter1Title: "The Beginning",
+    storyChapter1Text: "Every great journey begins with a question. Ours was simple: What if water could tell the story of its origin?",
+    storyChapter1Detail: "In 2024, a small team of researchers and craftspeople gathered in Venice. We weren't looking to create another luxury product. We were seeking to preserve something disappearing—true purity.",
+    storyChapter2Title: "The Discovery",
+    storyChapter2Text: "Beneath Venice's lagoon lies an untouched aquifer, sealed for millennia.",
+    storyChapter2Detail: "Ancient geological surveys revealed aquifers untouched since the age of the Doges. These waters had escaped modern contamination, hidden beneath 300 meters of stone and history. We knew we had found something extraordinary.",
+    storyChapter3Title: "The Craft",
+    storyChapter3Text: "Perfection demands patience. Excellence demands precision.",
+    storyChapter3Detail: "Every bottle is extracted, filtered, and encased in Murano crystal by hand. This is not manufacturing—it is archaeology. We extract legacy, not commodity.",
+    storyChapter4Title: "The Philosophy",
+    storyChapter4Text: "AETERNA embodies a single principle: The Luxury of Subtraction.",
+    storyChapter4Detail: "In removing everything unnecessary, we reveal what truly matters. No marketing claims. No exaggeration. Just water—pure, honest, and silent. It speaks only through its absence of everything else.",
+    storyChapter5Title: "The Future",
+    storyChapter5Text: "We are only at the beginning of a longer journey.",
+    storyChapter5Detail: "Our dream is not to become ubiquitous. It is to remain rare. To remain true. To remain eternal.",
+    storyFinalQuote: "What we do is simple. What we believe is not.",
+    storyBack: "Return Home",
     // Origins Portal - Aerial Humidity Extraction
     originsTitle: "THE VENETIAN SKY",
     originsSubtitle: "A Descent from the Heavens",
@@ -122,6 +698,28 @@ const content = {
     navOrigins: "Origines",
     navPurity: "Pureté",
     navAcquire: "Acquérir",
+    navStory: "Histoire",
+    // Story Portal
+    storyTitle: "L'HISTOIRE D'AETERNA",
+    storySubtitle: "Une Quête d'Essence",
+    storyIntro: "Dans un monde noyé dans la complexité, nous avons cherché la simplicité.",
+    storyChapter1Title: "Le Commencement",
+    storyChapter1Text: "Tout grand voyage commence par une question. La nôtre était simple : Et si l'eau pouvait raconter l'histoire de ses origines?",
+    storyChapter1Detail: "En 2024, une petite équipe de chercheurs et d'artisans s'est réunie à Venise. Nous ne cherchions pas à créer un autre produit de luxe. Nous cherchions à préserver quelque chose qui disparaît—la vraie pureté.",
+    storyChapter2Title: "La Découverte",
+    storyChapter2Text: "Sous la lagune de Venise repose un aquifère intouché, scellé depuis des millénaires.",
+    storyChapter2Detail: "Les anciens relevés géologiques ont révélé des aquifères intouchés depuis l'époque des Doges. Ces eaux avaient échappé à la contamination moderne, cachées sous 300 mètres de pierre et d'histoire. Nous savions avoir trouvé quelque chose d'extraordinaire.",
+    storyChapter3Title: "L'Art",
+    storyChapter3Text: "La perfection exige de la patience. L'excellence exige de la précision.",
+    storyChapter3Detail: "Chaque bouteille est extraite, filtrée et enchâssée dans du cristal de Murano à la main. Ce n'est pas de la fabrication—c'est de l'archéologie. Nous extrayons l'héritage, non la marchandise.",
+    storyChapter4Title: "La Philosophie",
+    storyChapter4Text: "AETERNA incarne un seul principe : Le Luxe de la Soustraction.",
+    storyChapter4Detail: "En supprimant tout ce qui est inutile, nous révélons ce qui compte vraiment. Aucune affirmation de marketing. Aucune exagération. Juste de l'eau—pure, honnête, et silencieuse. Elle ne parle que par son absence de tout le reste.",
+    storyChapter5Title: "L'Avenir",
+    storyChapter5Text: "Nous ne sommes qu'au début d'un plus long voyage.",
+    storyChapter5Detail: "Notre rêve n'est pas de devenir omniprésent. C'est de rester rare. De rester véridique. De rester éternel.",
+    storyFinalQuote: "Ce que nous faisons est simple. Ce que nous croyons ne l'est pas.",
+    storyBack: "Retour à l'Accueil",
     // Origins Portal - Aerial Humidity Extraction
     originsTitle: "LE CIEL VÉNITIEN",
     originsSubtitle: "Une Descente des Cieux",
@@ -196,6 +794,28 @@ const content = {
     navOrigins: "起源",
     navPurity: "纯净",
     navAcquire: "获取",
+    navStory: "故事",
+    // Story Portal
+    storyTitle: "AETERNA的故事",
+    storySubtitle: "追寻本质之旅",
+    storyIntro: "在一个充满复杂性的世界里，我们寻找简单。",
+    storyChapter1Title: "开始",
+    storyChapter1Text: "每一段伟大的旅程都始于一个问题。我们的问题很简单：如果水能讲述其起源的故事呢？",
+    storyChapter1Detail: "2024年，一支由研究人员和工匠组成的小团队聚集在威尼斯。我们并不是想创造另一种奢侈品。我们真正想要的是保护一些正在消失的东西——真正的纯净。",
+    storyChapter2Title: "发现",
+    storyChapter2Text: "威尼斯泻湖下方躺着一个未触及的含水层，已密封数千年。",
+    storyChapter2Detail: "古代地质调查揭示了自总督时代以来未曾触及的含水层。这些水躲过了现代污染，隐藏在300米深的岩石和历史之下。我们知道我们找到了非同寻常的东西。",
+    storyChapter3Title: "工艺",
+    storyChapter3Text: "完美需要耐心。卓越需要精准。",
+    storyChapter3Detail: "每一瓶都由手工提取、过滤并装入穆拉诺水晶。这不是制造——这是考古学。我们提取的是遗产，而不是商品。",
+    storyChapter4Title: "哲学",
+    storyChapter4Text: "AETERNA体现了一个单一的原则：减法的奢侈。",
+    storyChapter4Detail: "在去除所有不必要的东西时，我们揭示了真正重要的东西。没有营销宣传。没有夸大其词。只是水——纯净、诚实、沉默。它只通过没有其他一切来说话。",
+    storyChapter5Title: "未来",
+    storyChapter5Text: "我们只是立长远之旅的初始阶段。",
+    storyChapter5Detail: "我们的梦想不是成为无处不在。而是保持稀有。保持真诚。保持永恒。",
+    storyFinalQuote: "我们所做的很简单。我们所相信的并不简单。",
+    storyBack: "返回主页",
     // Origins Portal - Aerial Humidity Extraction
     originsTitle: "威尼斯天空",
     originsSubtitle: "从天而降",
@@ -245,6 +865,8 @@ const useLanguage = () => {
   }
   return context;
 };
+
+export { useLanguage, LanguageContext };
 
 // ============================================
 // LANGUAGE SWITCHER COMPONENT
@@ -486,84 +1108,33 @@ const HeroSection = () => {
     offset: ['start start', 'end start']
   });
   
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const yPercent = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   
   return (
     <section 
       ref={ref}
-      className="relative h-screen w-full overflow-hidden flex items-center justify-center"
+      className="relative h-screen w-full overflow-hidden flex items-center justify-center bg-[#020405]"
     >
-      {/* Deep water gradient background */}
-      <div className="absolute inset-0 bg-[#020405]">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#020405] via-[#041015] to-[#020405]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#0a1520_0%,_transparent_70%)]" />
-        
-        {/* Subtle animated light rays */}
-        <motion.div 
-          className="absolute inset-0 opacity-20"
-          animate={{ 
-            background: [
-              'radial-gradient(ellipse at 30% 20%, #D4AF37 0%, transparent 50%)',
-              'radial-gradient(ellipse at 70% 80%, #D4AF37 0%, transparent 50%)',
-              'radial-gradient(ellipse at 30% 20%, #D4AF37 0%, transparent 50%)',
-            ]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          style={{ filter: 'blur(100px)' }}
-        />
-      </div>
+      {/* Background glow - subtle effect like Artifact section */}
+      <motion.div 
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
+        <div className="w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_center,_#D4AF37_0%,_transparent_70%)] opacity-10 blur-3xl" />
+      </motion.div>
       
       {/* Parallax content */}
       <motion.div 
-        className="relative z-10 text-center px-4"
-        style={{ y, opacity }}
+        className="absolute inset-0 w-full h-full"
+        style={{ y: yPercent, opacity }}
       >
-        {/* Pre-title */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="mb-6 md:mb-8"
-        >
-          <span className="text-[9px] md:text-[10px] font-mono tracking-[0.5em] text-[#D4AF37]/70 uppercase">
-            {t.heroPreTitle}
-          </span>
-        </motion.div>
-        
-        {/* Main Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30, letterSpacing: '0.3em' }}
-          animate={{ opacity: 1, y: 0, letterSpacing: '0.5em' }}
-          transition={{ duration: 1.5, delay: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-          className="font-serif text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-light text-[#F5F5F5] tracking-[0.5em] mb-6 md:mb-8"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          {t.heroTitle}
-        </motion.h1>
-        
-        {/* Decorative line */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1.2, delay: 1.5 }}
-          className="w-16 md:w-24 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto mb-6 md:mb-8"
+        {/* Bottle Image - Full screen background with smooth parallax */}
+        <img
+          src="/aeterna-bottle-hero.jpg.PNG"
+          alt="AETERNA Luxury Water Bottle"
+          className="w-full h-full object-cover"
         />
-        
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.8 }}
-          className="font-serif text-sm md:text-lg lg:text-xl text-neutral-400 font-light italic tracking-wide"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          {t.heroSubtitle}
-        </motion.p>
       </motion.div>
-      
-      {/* Scroll Indicator */}
-      <ScrollIndicator />
       
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#020405] to-transparent pointer-events-none" />
@@ -936,6 +1507,538 @@ const AcquisitionSection = () => {
 };
 
 // ============================================
+// STORY PORTAL - The Aeterna Journey (Scrollable)
+// ============================================
+const StoryPortal = ({ onClose }) => {
+  const { t } = useLanguage();
+  const scrollContainerRef = useRef(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const raffRef = useRef(null);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (raffRef.current) return;
+      
+      raffRef.current = requestAnimationFrame(() => {
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight - container.clientHeight;
+        const progress = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+        setScrollProgress(progress);
+        raffRef.current = null;
+      });
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      if (raffRef.current) cancelAnimationFrame(raffRef.current);
+    };
+  }, []);
+
+  const artisanStages = [
+    {
+      threshold: 0.05,
+      number: '01',
+      title: 'The Source',
+      subtitle: 'Extraction',
+      text: 'Deep beneath the Venetian lagoon, master artisans locate and carefully extract water from ancient aquifers.',
+      detail: 'Using centuries-old techniques combined with modern precision, each extraction is a delicate operation. The artisans work in harmony with nature, respecting the geological formations that have protected this water for millennia.',
+      image: '/artisan-extraction.jpg'
+    },
+    {
+      threshold: 0.25,
+      number: '02',
+      title: 'The Craft',
+      subtitle: 'Purification',
+      text: 'Multi-stage filtration processes remove impurities while preserving the water\'s mineral balance.',
+      detail: 'Artisans oversee each filtration stage with meticulous attention. Alpine stone layers, sand beds, and crystalline filters work together in a symphony of purification. Every step is monitored, every result tested.',
+      image: '/artisan-purification.jpg'
+    },
+    {
+      threshold: 0.45,
+      number: '03',
+      title: 'The Artistry',
+      subtitle: 'Crystallization',
+      text: 'The water is prepared through a proprietary crystallization process that enhances its natural properties.',
+      detail: 'Master chemists and water specialists work alongside traditional artisans. This is where science meets art—precise measurements meet intuitive knowledge passed down through generations.',
+      image: '/artisan-crystallization.jpg'
+    },
+    {
+      threshold: 0.65,
+      number: '04',
+      title: 'The Vessel',
+      subtitle: 'Murano Glass',
+      text: 'Each bottle is hand-crafted by Murano glass artisans using techniques perfected over centuries.',
+      detail: 'In the furnaces of Murano, artisans heat glass to 1300°C. Every vessel is blown, shaped, and cooled by human hands. No two bottles are ever identical—each carries the fingerprint of its creator.',
+      image: '/artisan-murano.jpg'
+    },
+    {
+      threshold: 0.85,
+      number: '05',
+      title: 'The Encasement',
+      subtitle: 'Filling & Sealing',
+      text: 'The purified water meets its crystal home in a ritual of precision and reverence.',
+      detail: 'Artisans fill each bottle with calculated care, ensuring no air enters the seal. Every closure is wax-sealed by hand, every label applied with exactitude. This is the moment where purity becomes permanence.',
+      image: '/artisan-filling.jpg'
+    }
+  ];
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 bg-[#020405]"
+      initial={{ y: '100%' }}
+      animate={{ y: 0 }}
+      exit={{ y: '100%' }}
+      transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <div 
+        ref={scrollContainerRef}
+        className="absolute inset-0 overflow-y-auto overflow-x-hidden"
+        style={{ scrollBehavior: 'smooth' }}
+      >
+        <div className="min-h-[500vh] relative">
+          {/* HERO SECTION */}
+          <div className="h-screen sticky top-0 flex flex-col items-center justify-center px-4">
+            <motion.div 
+              className="relative z-10 text-center transition-all duration-300"
+              style={{ 
+                opacity: Math.max(0, 1 - scrollProgress * 30),
+                transform: `translateY(${scrollProgress * 200}px)`,
+                pointerEvents: scrollProgress > 0.02 ? 'none' : 'auto'
+              }}
+            >
+              <motion.span 
+                className="text-[10px] font-mono tracking-[0.5em] text-white/70 uppercase block mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                Master Craftsmanship
+              </motion.span>
+              <motion.h1
+                className="font-serif text-4xl md:text-6xl lg:text-7xl font-light text-white tracking-[0.3em] mb-8 drop-shadow-lg"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 1 }}
+              >
+                THE ARTISANS
+              </motion.h1>
+              <motion.p
+                className="font-serif text-lg md:text-xl text-white/80 font-light italic max-w-xl mx-auto drop-shadow-md"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                Hands that preserve the essence of water through knowledge, tradition, and precision
+              </motion.p>
+              
+              <motion.div 
+                className="mt-16"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+              >
+                <span className="text-[9px] font-mono tracking-[0.3em] text-white/50 uppercase block mb-4">
+                  Scroll to Discover
+                </span>
+                <motion.div
+                  className="w-[1px] h-16 bg-gradient-to-b from-white/50 to-transparent mx-auto"
+                  animate={{ y: [0, 10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+              </motion.div>
+            </motion.div>
+          </div>
+
+          {/* ARTISAN STAGES */}
+          <div className="relative z-20 -mt-[50vh]">
+            {artisanStages.map((stage, index) => {
+              const isVisible = scrollProgress >= stage.threshold - 0.1;
+              const isActive = scrollProgress >= stage.threshold && scrollProgress < (artisanStages[index + 1]?.threshold || 1);
+              
+              return (
+                <div 
+                  key={index}
+                  className="min-h-[60vh] sm:min-h-[70vh] flex items-center justify-center px-3 sm:px-4 md:px-8 py-16"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl w-full items-center">
+                    {/* Image Section */}
+                    <motion.div
+                      className={`relative overflow-hidden rounded-lg ${index % 2 === 0 ? 'md:order-1' : 'md:order-2'}`}
+                      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                      animate={{ 
+                        opacity: isVisible ? 1 : 0, 
+                        x: isVisible ? 0 : (index % 2 === 0 ? -50 : 50)
+                      }}
+                      transition={{ duration: 0.8 }}
+                    >
+                      <div className="aspect-square bg-gradient-to-br from-[#D4AF37]/10 to-[#D4AF37]/5 border border-[#D4AF37]/20 rounded-lg overflow-hidden">
+                        <img
+                          src={stage.image}
+                          alt={stage.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="text-center"><div class="text-[#D4AF37]/40 text-sm font-mono mb-2">Image Placeholder</div><div class="text-white/30 text-xs font-mono">' + stage.image + '</div></div></div>';
+                          }}
+                        />
+                        {/* Fallback content in case image fails */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 via-transparent to-[#D4AF37]/10 flex items-center justify-center opacity-0" />
+                      </div>
+                      
+                      {/* Stage number badge */}
+                      <motion.div
+                        className="absolute top-4 right-4 w-16 h-16 border-2 border-[#D4AF37]/40 rounded-full flex items-center justify-center"
+                        animate={{
+                          borderColor: isActive ? '#D4AF37' : 'rgba(212, 175, 55, 0.4)',
+                          boxShadow: isActive ? '0 0 20px rgba(212, 175, 55, 0.8)' : '0 0 10px rgba(212, 175, 55, 0.2)'
+                        }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <span className={`text-lg font-mono font-light transition-colors duration-500 ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/40'}`}>
+                          {stage.number}
+                        </span>
+                      </motion.div>
+                    </motion.div>
+
+                    {/* Text Section */}
+                    <motion.div
+                      className={`${index % 2 === 0 ? 'md:order-2' : 'md:order-1'}`}
+                      initial={{ opacity: 0, x: index % 2 === 0 ? 50 : -50 }}
+                      animate={{ 
+                        opacity: isVisible ? 1 : 0, 
+                        x: isVisible ? 0 : (index % 2 === 0 ? 50 : -50)
+                      }}
+                      transition={{ duration: 0.8 }}
+                    >
+                      <div className={`
+                        relative pl-6 border-l-2 transition-all duration-500
+                        ${isActive ? 'border-[#D4AF37]' : 'border-white/20'}
+                      `}>
+                        {/* Active indicator dot */}
+                        <div className={`
+                          absolute left-0 top-0 w-4 h-4 -translate-x-2.5 rounded-full transition-all duration-500
+                          ${isActive 
+                            ? 'bg-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.8)]' 
+                            : 'bg-white/30'
+                          }
+                        `} />
+                        
+                        {/* Subtitle */}
+                        <span className={`text-[10px] font-mono tracking-[0.3em] uppercase block mb-2 transition-colors duration-500 ${isActive ? 'text-[#D4AF37]' : 'text-[#D4AF37]/50'}`}>
+                          {stage.subtitle}
+                        </span>
+                        
+                        {/* Title */}
+                        <h3 className="font-serif text-2xl md:text-3xl text-white font-light mb-4 tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>
+                          {stage.title}
+                        </h3>
+                        
+                        {/* Main text */}
+                        <p className="text-sm md:text-base text-white/80 font-light leading-relaxed mb-4">
+                          {stage.text}
+                        </p>
+                        
+                        {/* Detail text - only show when active */}
+                        <motion.p 
+                          className="text-xs md:text-sm text-white/60 font-light leading-relaxed italic"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ 
+                            opacity: isActive ? 1 : 0,
+                            height: isActive ? 'auto' : 0
+                          }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          {stage.detail}
+                        </motion.p>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* FINAL SECTION */}
+          <div className="min-h-[60vh] flex items-center justify-center px-4 py-20">
+            <motion.div
+              className="text-center max-w-2xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: scrollProgress > 0.9 ? 1 : 0 }}
+              transition={{ duration: 1 }}
+            >
+              <div className="w-16 h-[1px] bg-[#D4AF37]/60 mx-auto mb-8" />
+              <p className="font-serif text-2xl md:text-3xl text-white font-light mb-6 leading-relaxed" style={{ fontFamily: "'Playfair Display', serif" }}>
+                Every bottle is a testament to the dedication of artisans who believe that true luxury lies in the invisible labor of perfection.
+              </p>
+              <p className="text-sm md:text-base text-[#D4AF37]/80 font-mono tracking-wider uppercase">
+                Crafted by hands. Perfected by hearts.
+              </p>
+              <div className="w-16 h-[1px] bg-[#D4AF37]/60 mx-auto mt-8" />
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* Close Button */}
+      <motion.button
+        onClick={onClose}
+        className="fixed top-3 sm:top-6 right-3 sm:right-4 md:right-8 z-[60] flex items-center gap-2 group"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <span className="text-[8px] sm:text-[10px] font-mono tracking-[0.2em] text-white/50 uppercase group-hover:text-[#D4AF37] transition-colors duration-300 hidden sm:inline">
+          Return Home
+        </span>
+        <X className="w-4 h-4 sm:w-5 sm:h-5 text-white/50 group-hover:text-[#D4AF37] transition-colors duration-300" />
+      </motion.button>
+
+      {/* Progress Counter */}
+      <motion.div 
+        className="fixed right-3 sm:right-4 md:right-8 top-1/2 -translate-y-1/2 z-[60]"
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <div className="flex flex-col items-end">
+          <span className="text-[7px] sm:text-[9px] font-mono tracking-[0.2em] sm:tracking-[0.3em] text-white/50 uppercase mb-1 sm:mb-2">
+            Progress
+          </span>
+          <span className="text-2xl sm:text-4xl md:text-6xl font-mono text-white font-light tabular-nums drop-shadow-lg">
+            {Math.round(scrollProgress * 100)}%
+          </span>
+        </div>
+        
+        <div className="w-[1px] sm:w-[2px] h-20 sm:h-32 bg-white/10 mt-2 sm:mt-4 relative overflow-hidden rounded-full">
+          <motion.div 
+            className="absolute top-0 left-0 w-full bg-gradient-to-b from-white/50 to-[#D4AF37] rounded-full"
+            style={{ height: `${scrollProgress * 100}%` }}
+          />
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// ============================================
+// INTERACTIVE CLOUD COMPONENT
+// ============================================
+const InteractiveCloud = () => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
+  const [weatherValue, setWeatherValue] = useState(0);
+  const [showLightning, setShowLightning] = useState(false);
+  const cloudRef = useRef(null);
+  const skyBackgroundRef = useRef(null);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+
+  // Handle drag start
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX - offsetX,
+      y: e.clientY - offsetY
+    };
+  };
+
+  // Handle drag move
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+      setOffsetX(e.clientX - dragStartRef.current.x);
+      setOffsetY(e.clientY - dragStartRef.current.y);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
+  // Random lightning effect when weather is at max
+  useEffect(() => {
+    if (weatherValue === 100) {
+      const randomInterval = setInterval(() => {
+        if (Math.random() > 0.7) {
+          setShowLightning(true);
+          setTimeout(() => setShowLightning(false), 100);
+        }
+      }, 500);
+
+      return () => clearInterval(randomInterval);
+    }
+  }, [weatherValue]);
+
+  // Calculate background saturation/brightness
+  const saturation = (weatherValue / 100) * 30;
+  const brightness = Math.max(100 - weatherValue * 0.3, 80);
+
+  return (
+    <motion.div
+      className="relative w-full flex flex-col items-center justify-center"
+      ref={skyBackgroundRef}
+      style={{
+        filter: `saturate(${100 + saturation}%) brightness(${brightness}%)`
+      }}
+    >
+      {/* Sky Background */}
+      <div className="absolute inset-0">
+        <div
+          className="w-full h-full"
+          style={{
+            background: `linear-gradient(to bottom, rgb(${135 - weatherValue}, ${200 - Math.floor(weatherValue * 0.5)}, 255) 0%, rgb(175, 220, 255) 50%, rgb(200, 230, 255) 100%)`
+          }}
+        />
+      </div>
+
+      {/* Lightning Background Glow */}
+      {showLightning && (
+        <motion.div
+          className="absolute inset-0 bg-white/40 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.05 }}
+        />
+      )}
+
+      {/* Cloud SVG - Draggable */}
+      <motion.div
+        ref={cloudRef}
+        className="relative cursor-grab active:cursor-grabbing select-none z-10 mt-16"
+        onMouseDown={handleMouseDown}
+        style={{
+          x: offsetX,
+          y: offsetY,
+        }}
+      >
+        <svg
+          width="280"
+          height="140"
+          viewBox="0 0 280 140"
+          className="drop-shadow-2xl"
+          style={{
+            filter: `drop-shadow(0 0 ${20 + weatherValue * 0.3}px rgba(100, 150, 255, ${weatherValue / 200}))`
+          }}
+        >
+          {/* Cloud shape */}
+          <g>
+            {/* Main cloud body - white turning gray as weather increases */}
+            <circle
+              cx="50"
+              cy="80"
+              r="45"
+              fill={`rgb(${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.3})`}
+            />
+            <circle
+              cx="140"
+              cy="60"
+              r="55"
+              fill={`rgb(${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.3})`}
+            />
+            <circle
+              cx="230"
+              cy="80"
+              r="45"
+              fill={`rgb(${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.3})`}
+            />
+            <rect
+              x="50"
+              y="80"
+              width="180"
+              height="50"
+              fill={`rgb(${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.5}, ${255 - weatherValue * 0.3})`}
+            />
+          </g>
+
+          {/* Lightning bolt - appears when weather is 100% */}
+          {weatherValue === 100 && (
+            <g opacity={showLightning ? 1 : 0.3} className="transition-opacity duration-100">
+              <path
+                d="M 140 100 L 135 120 L 145 120 L 140 140 L 150 110 L 140 110 Z"
+                fill="#FFD700"
+                filter="url(#lightning-glow)"
+              />
+            </g>
+          )}
+
+          {/* Define glow filter */}
+          <defs>
+            <filter id="lightning-glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+        </svg>
+      </motion.div>
+
+      {/* Weather Slider */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20">
+        <label className="text-sm font-mono text-gray-700 uppercase tracking-widest">
+          Weather Intensity
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={weatherValue}
+          onChange={(e) => setWeatherValue(Number(e.target.value))}
+          className="w-48 h-2 bg-gradient-to-r from-blue-200 to-gray-500 rounded-lg appearance-none cursor-pointer slider"
+          style={{
+            background: `linear-gradient(to right, rgb(150, 200, 255) 0%, rgb(${150 - weatherValue}, ${150 - weatherValue}, ${150 - weatherValue})) ${(weatherValue / 100) * 100}%, rgb(150, 150, 150) ${(weatherValue / 100) * 100}%, rgb(150, 150, 150) 100%)`
+          }}
+        />
+        <span className="text-xs font-mono text-gray-600">
+          {weatherValue}%
+        </span>
+      </div>
+
+      <style>{`
+        input[type="range"]::-webkit-slider-thumb {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #D4AF37, #FFE082);
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          border: 2px solid white;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #D4AF37, #FFE082);
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          border: 2px solid white;
+        }
+      `}</style>
+    </motion.div>
+  );
+};
+
+// ============================================
 // ORIGINS PORTAL - The Deep Dive (Scrollable)
 // ============================================
 const OriginsPortal = ({ onClose }) => {
@@ -1045,19 +2148,14 @@ const OriginsPortal = ({ onClose }) => {
     >
       {/* Fixed Background - Sky to Ground Transition */}
       <div className="fixed inset-0 z-0 overflow-hidden">
-        {/* Sky gradient base */}
+        {/* Sky gradient base - Starting from bright cloud colors and darkening on scroll */}
         <div 
           className="absolute inset-0 transition-all duration-700"
           style={{
-            background: scrollProgress < 0.7 
-              ? `linear-gradient(to bottom, 
-                  rgb(${Math.max(20, 100 - scrollProgress * 120)}, ${Math.max(30, 140 - scrollProgress * 150)}, ${Math.max(40, 200 - scrollProgress * 200)}) 0%, 
-                  rgb(${Math.max(15, 80 - scrollProgress * 100)}, ${Math.max(25, 110 - scrollProgress * 120)}, ${Math.max(35, 160 - scrollProgress * 160)}) 40%,
-                  rgb(${40 + scrollProgress * 30}, ${35 + scrollProgress * 20}, ${30 + scrollProgress * 10}) 100%)`
-              : `linear-gradient(to bottom, 
-                  rgb(25, 22, 18) 0%, 
-                  rgb(20, 18, 15) 50%,
-                  rgb(15, 12, 10) 100%)`
+            background: `linear-gradient(0deg, 
+              rgb(${Math.max(25, Math.min(98, 98 - scrollProgress * 73))}, ${Math.max(22, Math.min(160, 160 - scrollProgress * 68))}, ${Math.max(18, Math.min(216, 216 - scrollProgress * 37))}) 0%, 
+              rgb(${Math.max(20, Math.min(33, 33 - scrollProgress * 33))}, ${Math.max(18, Math.min(120, 120 - scrollProgress * 95))}, ${Math.max(15, Math.min(209, 209 - scrollProgress * 30))}) 50%,
+              rgb(${Math.max(15, Math.min(8, 8 - scrollProgress * 0))}, ${Math.max(12, Math.min(92, 92 - scrollProgress * 80))}, ${Math.max(10, Math.min(179, 179 - scrollProgress * 169))}) 100%)`
           }}
         />
         
@@ -1131,9 +2229,9 @@ const OriginsPortal = ({ onClose }) => {
           
           {/* Hero Section - Sticky */}
           <div className="h-screen sticky top-0 flex flex-col items-center justify-center px-4">
-            {/* Header content - fades out immediately on scroll */}
+            {/* Header content - positioned above cloud, fades out immediately on scroll */}
             <motion.div 
-              className="relative z-10 text-center transition-all duration-300"
+              className="relative z-20 text-center transition-all duration-300 order-first mb-4 md:mb-8"
               style={{ 
                 opacity: Math.max(0, 1 - scrollProgress * 30),
                 transform: `translateY(${scrollProgress * 200}px)`,
@@ -1141,24 +2239,15 @@ const OriginsPortal = ({ onClose }) => {
               }}
             >
               <motion.span 
-                className="text-[10px] font-mono tracking-[0.5em] text-white/70 uppercase block mb-6"
+                className="text-[10px] font-mono tracking-[0.5em] text-white/70 uppercase block mb-3 md:mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
                 {t.originsSubtitle}
               </motion.span>
-              <motion.h1
-                className="font-serif text-4xl md:text-6xl lg:text-7xl font-light text-white tracking-[0.3em] mb-8 drop-shadow-lg"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 1 }}
-              >
-                {t.originsTitle}
-              </motion.h1>
               <motion.p
-                className="font-serif text-lg md:text-xl text-white/80 font-light italic max-w-xl mx-auto drop-shadow-md"
+                className="font-serif text-base sm:text-lg md:text-xl text-white/80 font-light italic max-w-xl mx-auto drop-shadow-md mt-2 md:mt-4"
                 style={{ fontFamily: "'Playfair Display', serif" }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -1166,24 +2255,12 @@ const OriginsPortal = ({ onClose }) => {
               >
                 {t.originsStory}
               </motion.p>
-              
-              {/* Scroll indicator */}
-              <motion.div 
-                className="mt-16"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
-              >
-                <span className="text-[9px] font-mono tracking-[0.3em] text-white/50 uppercase block mb-4">
-                  {t.originsScrollToDescend}
-                </span>
-                <motion.div
-                  className="w-[1px] h-16 bg-gradient-to-b from-white/50 to-transparent mx-auto"
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </motion.div>
             </motion.div>
+            
+            {/* Cloud Generator - Always Visible */}
+            <div style={{ opacity: Math.max(0.3, 1 - scrollProgress * 2) }}>
+              <CloudGeneratorEffect scrollProgress={scrollProgress} />
+            </div>
           </div>
 
           {/* Milestones - Scroll-triggered content */}
@@ -1817,13 +2894,24 @@ const HomeContent = () => {
 
 function App() {
   const [lang, setLang] = useState('en');
-  const [activeSection, setActiveSection] = useState('home'); // 'home', 'origins', 'purity'
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home'); // 'home', 'story', 'origins', 'purity'
+  const [scrollToAcquire, setScrollToAcquire] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   const t = content[lang];
   
   // Smooth scroll behavior
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth';
+  }, []);
+
+  // Track scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Lock body scroll when portal is open
@@ -1838,14 +2926,33 @@ function App() {
     };
   }, [activeSection]);
 
+  // Scroll to acquisition when coming back from portal
+  useEffect(() => {
+    if (activeSection === 'home' && scrollToAcquire) {
+      // Use timeout to ensure DOM is updated
+      const timer = setTimeout(() => {
+        const acquisitionSection = document.querySelector('section:last-of-type');
+        acquisitionSection?.scrollIntoView({ behavior: 'smooth' });
+        setScrollToAcquire(false);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [activeSection, scrollToAcquire]);
+
   const handleNavClick = (section) => {
-    setMobileMenuOpen(false);
     if (section === 'acquire') {
-      // Scroll to acquisition section
-      const acquisitionSection = document.querySelector('section:last-of-type');
-      acquisitionSection?.scrollIntoView({ behavior: 'smooth' });
+      // If not on home, go to home first
+      if (activeSection !== 'home') {
+        setActiveSection('home');
+        setScrollToAcquire(true);
+      } else {
+        // Already on home, scroll directly
+        const acquisitionSection = document.querySelector('section:last-of-type');
+        acquisitionSection?.scrollIntoView({ behavior: 'smooth' });
+      }
     } else {
       setActiveSection(section);
+      setScrollToAcquire(false);
     }
   };
   
@@ -1863,112 +2970,10 @@ function App() {
           />
         </div>
         
-        {/* Language Switcher - Only show on home */}
-        {activeSection === 'home' && <LanguageSwitcher />}
+        {/* Language Switcher is now inside DropdownMenu */}
         
-        {/* Navigation (Minimal) - Only show on home */}
-        {activeSection === 'home' && (
-          <nav className="fixed top-0 left-0 right-0 z-40 px-4 md:px-8 py-4 md:py-6">
-            <div className="flex items-center justify-between">
-              <motion.span 
-                className="font-serif text-xs md:text-sm tracking-[0.3em] text-neutral-400 cursor-pointer"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1, delay: 0.3 }}
-                onClick={() => setActiveSection('home')}
-              >
-                AE
-              </motion.span>
-              
-              {/* Desktop Navigation */}
-              <motion.div 
-                className="flex items-center gap-6 md:gap-8 mr-0 md:mr-24"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1, delay: 0.3 }}
-              >
-                <button 
-                  onClick={() => handleNavClick('origins')}
-                  className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase hidden md:inline cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
-                >
-                  {t.navOrigins}
-                </button>
-                <button 
-                  onClick={() => handleNavClick('purity')}
-                  className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] text-neutral-500 uppercase hidden md:inline cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
-                >
-                  {t.navPurity}
-                </button>
-                <button 
-                  onClick={() => handleNavClick('acquire')}
-                  className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] text-[#D4AF37]/70 uppercase cursor-pointer hover:text-[#D4AF37] transition-colors duration-300"
-                >
-                  {t.navAcquire}
-                </button>
-              </motion.div>
-
-              {/* Mobile Menu Button */}
-              <motion.button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden flex flex-col gap-1.5"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                <motion.div 
-                  className="w-5 h-0.5 bg-neutral-400"
-                  animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 10 : 0 }}
-                >
-                </motion.div>
-                <motion.div 
-                  className="w-5 h-0.5 bg-neutral-400"
-                  animate={{ opacity: mobileMenuOpen ? 0 : 1 }}
-                >
-                </motion.div>
-                <motion.div 
-                  className="w-5 h-0.5 bg-neutral-400"
-                  animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -10 : 0 }}
-                >
-                </motion.div>
-              </motion.button>
-            </div>
-
-            {/* Mobile Menu */}
-            <AnimatePresence>
-              {mobileMenuOpen && (
-                <motion.div
-                  className="absolute top-full left-0 right-0 bg-[#020405]/95 backdrop-blur-md border-b border-[#D4AF37]/10 md:hidden"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="px-4 py-4 space-y-3 flex flex-col">
-                    <button 
-                      onClick={() => handleNavClick('origins')}
-                      className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase hover:text-[#D4AF37] transition-colors duration-300 text-left py-2 border-b border-white/5 pb-3"
-                    >
-                      {t.navOrigins}
-                    </button>
-                    <button 
-                      onClick={() => handleNavClick('purity')}
-                      className="text-[10px] font-mono tracking-[0.2em] text-neutral-400 uppercase hover:text-[#D4AF37] transition-colors duration-300 text-left py-2 border-b border-white/5 pb-3"
-                    >
-                      {t.navPurity}
-                    </button>
-                    <button 
-                      onClick={() => handleNavClick('acquire')}
-                      className="text-[10px] font-mono tracking-[0.2em] text-[#D4AF37] uppercase hover:text-[#D4AF37]/80 transition-colors duration-300 text-left py-2"
-                    >
-                      {t.navAcquire}
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </nav>
-        )}
+        {/* Dropdown Menu Navigation - Always visible */}
+        <DropdownMenu onNavClick={handleNavClick} activeSection={activeSection} translations={t} />
         
         {/* Main Content with AnimatePresence */}
         <AnimatePresence mode="wait">
@@ -1976,6 +2981,13 @@ function App() {
             <main key="home">
               <HomeContent />
             </main>
+          )}
+          
+          {activeSection === 'story' && (
+            <StoryPortal 
+              key="story"
+              onClose={() => setActiveSection('home')} 
+            />
           )}
           
           {activeSection === 'origins' && (
