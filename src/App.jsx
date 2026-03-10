@@ -16,10 +16,16 @@ const CloudGeneratorEffect = ({ scrollProgress = 0 }) => {
   const [weatherValue, setWeatherValue] = useState(0);
   const [lightningFlash, setLightningFlash] = useState(false);
   const [lightningGlowStyle, setLightningGlowStyle] = useState({ x: 0, y: 0 });
+  const [isSafariUser, setIsSafariUser] = useState(false);
   const cloudRef = useRef(null);
   const lightningGlowRef = useRef(null);
   const lightningIntervalRef = useRef(null);
   const dragStartRef = useRef({ x: 0, y: 0 });
+
+  // Detect Safari browser on mount
+  useEffect(() => {
+    setIsSafariUser(/^((?!chrome|android).)*safari/i.test(navigator.userAgent));
+  }, []);
 
   // Sincronizza weatherValue con scrollProgress quando non c'è drag dello slider
   useEffect(() => {
@@ -339,62 +345,95 @@ const CloudGeneratorEffect = ({ scrollProgress = 0 }) => {
       >
         {/* SVG Filters */}
         <svg className="cg-svg-container" xmlns="http://www.w3.org/2000/svg">
-          <filter
-            id="cgfilter"
-            x="-50%"
-            y="-50%"
-            width="200%"
-            height="200%"
-            style={{ colorInterpolationFilters: 'sRGB' }}
-          >
-            <feTurbulence
-              type="fractalNoise"
-              seed="462"
-              baseFrequency="0.011"
-              numOctaves="5"
-              result="noise1"
-            />
-            <feTurbulence
-              type="fractalNoise"
-              seed="462"
-              baseFrequency="0.011"
-              numOctaves="2"
-              result="noise2"
-            />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur1" />
-            <feDisplacementMap in="blur1" scale="100" in2="noise1" result="cloud1" />
-            <feFlood id="cgshadow2" floodColor="rgb(215,215,215)" floodOpacity={lerp(0, 0.4, weatherValue / 100)} />
-            <feComposite operator="in" in2="SourceGraphic" />
-            <feOffset dx="-10" dy="-3" />
-            <feMorphology radius="20" />
-            <feGaussianBlur stdDeviation="20" />
-            <feDisplacementMap scale="100" in2="noise1" result="cloud2" />
-            <feFlood id="cgshadow3" floodColor="rgb(66,105,146)" floodOpacity={lerp(0.1, 0.4, weatherValue / 100)} />
-            <feComposite operator="in" in2="SourceGraphic" />
-            <feOffset dx="-10" dy="40" />
-            <feMorphology radius="0 40" />
-            <feGaussianBlur stdDeviation="20" />
-            <feDisplacementMap scale="80" in2="noise2" result="cloud3" />
-            <feFlood id="cgshadow4" floodColor="rgb(0,0,0)" floodOpacity={lerp(0.2, 0.6, weatherValue / 100)} />
-            <feComposite operator="in" in2="SourceGraphic" />
-            <feOffset dx="20" dy="60" />
-            <feMorphology radius="0 65" />
-            <feGaussianBlur stdDeviation="30" />
-            <feDisplacementMap scale="100" in2="noise2" result="cloud4" />
-            <feFlood id="cgshadow5" floodColor="rgb(0,0,0)" floodOpacity={lerp(0.2, 0.7, weatherValue / 100)} />
-            <feComposite operator="in" in2="SourceGraphic" />
-            <feOffset dx="20" dy="70" />
-            <feMorphology radius="0 200" />
-            <feGaussianBlur stdDeviation="30" />
-            <feDisplacementMap scale="100" in2="noise2" result="cloud5" />
-            <feMerge>
-              <feMergeNode in="cloud1" id="cg-feMergeNode954" />
-              <feMergeNode in="cloud2" id="cg-feMergeNode956" />
-              <feMergeNode in="cloud3" id="cg-feMergeNode958" />
-              <feMergeNode in="cloud4" id="cg-feMergeNode960" />
-              <feMergeNode in="cloud5" id="cg-feMergeNode962" />
-            </feMerge>
-          </filter>
+          {/* Safari-optimized filter - uses only basic SVG filters for compatibility */}
+          {isSafariUser && (
+            <filter
+              id="cgfilter"
+              x="-50%"
+              y="-50%"
+              width="200%"
+              height="200%"
+              style={{ colorInterpolationFilters: 'sRGB' }}
+            >
+              <feTurbulence
+                type="fractalNoise"
+                seed="462"
+                baseFrequency="0.01"
+                numOctaves="3"
+                result="noise"
+              />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+              <feDisplacementMap
+                in="blur"
+                in2="noise"
+                scale={50}
+                result="displaced"
+              />
+              <feMerge>
+                <feMergeNode in="displaced" />
+              </feMerge>
+            </filter>
+          )}
+
+          {/* Chrome/Firefox optimized filter - full effect with all morphology and composite operations */}
+          {!isSafariUser && (
+            <filter
+              id="cgfilter"
+              x="-50%"
+              y="-50%"
+              width="200%"
+              height="200%"
+              style={{ colorInterpolationFilters: 'sRGB' }}
+            >
+              <feTurbulence
+                type="fractalNoise"
+                seed="462"
+                baseFrequency="0.011"
+                numOctaves="5"
+                result="noise1"
+              />
+              <feTurbulence
+                type="fractalNoise"
+                seed="462"
+                baseFrequency="0.011"
+                numOctaves="2"
+                result="noise2"
+              />
+              <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur1" />
+              <feDisplacementMap in="blur1" scale="100" in2="noise1" result="cloud1" />
+              <feFlood id="cgshadow2" floodColor="rgb(215,215,215)" floodOpacity={0 + (weatherValue / 100) * 0.4} />
+              <feComposite operator="in" in2="SourceGraphic" />
+              <feOffset dx="-10" dy="-3" />
+              <feMorphology radius="20" />
+              <feGaussianBlur stdDeviation="20" />
+              <feDisplacementMap scale="100" in2="noise1" result="cloud2" />
+              <feFlood id="cgshadow3" floodColor="rgb(66,105,146)" floodOpacity={0.1 + (weatherValue / 100) * 0.3} />
+              <feComposite operator="in" in2="SourceGraphic" />
+              <feOffset dx="-10" dy="40" />
+              <feMorphology radius="0 40" />
+              <feGaussianBlur stdDeviation="20" />
+              <feDisplacementMap scale="80" in2="noise2" result="cloud3" />
+              <feFlood id="cgshadow4" floodColor="rgb(0,0,0)" floodOpacity={0.2 + (weatherValue / 100) * 0.4} />
+              <feComposite operator="in" in2="SourceGraphic" />
+              <feOffset dx="20" dy="60" />
+              <feMorphology radius="0 65" />
+              <feGaussianBlur stdDeviation="30" />
+              <feDisplacementMap scale="100" in2="noise2" result="cloud4" />
+              <feFlood id="cgshadow5" floodColor="rgb(0,0,0)" floodOpacity={0.2 + (weatherValue / 100) * 0.5} />
+              <feComposite operator="in" in2="SourceGraphic" />
+              <feOffset dx="20" dy="70" />
+              <feMorphology radius="0 200" />
+              <feGaussianBlur stdDeviation="30" />
+              <feDisplacementMap scale="100" in2="noise2" result="cloud5" />
+              <feMerge>
+                <feMergeNode in="cloud1" id="cg-feMergeNode954" />
+                <feMergeNode in="cloud2" id="cg-feMergeNode956" />
+                <feMergeNode in="cloud3" id="cg-feMergeNode958" />
+                <feMergeNode in="cloud4" id="cg-feMergeNode960" />
+                <feMergeNode in="cloud5" id="cg-feMergeNode962" />
+              </feMerge>
+            </filter>
+          )}
         </svg>
 
         {/* Cloud Container */}
