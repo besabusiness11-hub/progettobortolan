@@ -1,0 +1,5 @@
+﻿3812830 fix: Add Safari-compatible cloud filter for cross-browser support
+082e90d .
+7d3b913 Update: Improve scrolling with Framer Motion, reorganize menu layout, add smooth hover effects
+7544d64 feat: Comprehensive mobile responsive design adaptations
+4595bf2 Initial commit: project setup

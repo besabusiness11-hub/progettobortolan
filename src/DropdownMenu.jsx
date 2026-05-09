@@ -1,4 +1,4 @@
-﻿import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import gsap from 'gsap';
 import { useLanguage } from './App';
 
@@ -152,8 +152,8 @@ const DropdownMenu = ({ onNavClick, activeSection, translations }) => {
           visibility: hidden;
           opacity: 0;
           transition: opacity 0.3s ease, visibility 0.3s ease;
-          background: rgba(2, 4, 5, 0.98);
-          backdrop-filter: blur(10px);
+          background: rgba(2, 4, 5, 0.3);
+          backdrop-filter: blur(15px);
           pointer-events: none;
         }
         

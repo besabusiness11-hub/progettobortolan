@@ -1,0 +1,2 @@
+﻿082e90d .
+7d3b913 Update: Improve scrolling with Framer Motion, reorganize menu layout, add smooth hover effects

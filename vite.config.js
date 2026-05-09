@@ -8,6 +8,9 @@ export default defineConfig({
     port: 3000,
     open: true,
   },
+  optimizeDeps: {
+    exclude: ['@huggingface/transformers', 'kokoro-js'],
+  },
   build: {
     outDir: 'dist',
     sourcemap: false,

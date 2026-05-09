@@ -1,0 +1,38 @@
+﻿commit 082e90dcfd2f25b507e67ea490be70885f4bc1fe
+Author: Developer <dev@example.com>
+Date:   Sun Mar 8 23:06:16 2026 +0100
+
+    .
+
+ .../28012024-Canvas-Draw-Animation/index.html      |   49 +
+ CODE (39)/28012024-Canvas-Draw-Animation/script.js |   36 +
+ .../28012024-Canvas-Draw-Animation/styles.css      |  100 +
+ .../__MACOSX/._28012024-Canvas-Draw-Animation      |  Bin 0 -> 276 bytes
+ .../28012024-Canvas-Draw-Animation/._.DS_Store     |  Bin 0 -> 120 bytes
+ .../28012024-Canvas-Draw-Animation/._index.html    |  Bin 0 -> 176 bytes
+ .../28012024-Canvas-Draw-Animation/._styles.css    |  Bin 0 -> 176 bytes
+ cloud-generator/LICENSE.txt                        |   21 +
+ cloud-generator/README.md                          |    6 +
+ cloud-generator/src/index.html                     |   69 +
+ cloud-generator/src/script.js                      |  117 +
+ cloud-generator/src/style.css                      |  183 ++
+ fluid-motion-webgpu-version/LICENSE.txt            |   21 +
+ fluid-motion-webgpu-version/README.md              |    7 +
+ .../fluid-motion-webgpu-version/LICENSE.txt        |   21 +
+ .../fluid-motion-webgpu-version/README.md          |    7 +
+ .../fluid-motion-webgpu-version/src/index.html     |   44 +
+ .../fluid-motion-webgpu-version/src/script.js      | 1592 +++++++++++++
+ .../fluid-motion-webgpu-version/src/style.css      |  317 +++
+ fluid-motion-webgpu-version/src/index.html         |   44 +
+ fluid-motion-webgpu-version/src/script.js          | 1592 +++++++++++++
+ fluid-motion-webgpu-version/src/style.css          |  317 +++
+ .../CHIARA LUZZANA (MENU)/css/styles.css           |  233 ++
+ menu a tendina/CHIARA LUZZANA (MENU)/index.html    |  161 ++
+ .../__MACOSX/CHIARA LUZZANA (MENU)/._.DS_Store     |  Bin 0 -> 120 bytes
+ parallax-image-layersosmo/LICENSE.txt              |   21 +
+ parallax-image-layersosmo/README.md                |    6 +
+ parallax-image-layersosmo/src/index.html           |   27 +
+ parallax-image-layersosmo/src/script.js            |   38 +
+ parallax-image-layersosmo/src/style.css            |  235 ++
+ src/App.jsx.backup                                 | 2511 ++++++++++++++++++++
+ 31 files changed, 7775 insertions(+)
